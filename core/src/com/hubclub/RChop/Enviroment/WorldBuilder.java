@@ -31,7 +31,7 @@ public class WorldBuilder {
 			protected Vector2 blockPos; // block position in the grid
 			protected ArrayList<LandBody> landbodies;
 			
-			public Block(int x, int y){
+			public Block(float x, float y){
 				blockPos = new Vector2(x, y);
 				landbodies = new ArrayList<LandBody>();
 				landbodies.add(new LandBody());
@@ -67,7 +67,7 @@ public class WorldBuilder {
 			Block block = b.next();
 			// create a body
 			BodyDef blockDef = new BodyDef();
-			blockDef.position.set(block.blockPos);
+			blockDef.position.set(block.blockPos.x*BLOCK_WIDTH,block.blockPos.y*BLOCK_HEIGHT);
 			blockDef.type = BodyType.StaticBody;
 			Body blockBody = world.createBody(blockDef);
 			// add fixtures
@@ -98,5 +98,48 @@ public class WorldBuilder {
 		wdata = new WorldData(level);
 		System.out.println(json.prettyPrint(wdata));
 		wdata.level = level;
+	}
+	
+	public Vector2 findNearestVertex(Vector2 coord, Vector2 click, float threshold){
+		Iterator<LandBody> landbodyIterator = getBlock(coord).landbodies.iterator();
+		Vector2 nearestVertex = new Vector2();
+		
+		while (landbodyIterator.hasNext()){
+			LandBody landbody = landbodyIterator.next();
+			Iterator<Vector2> vectorIterator = landbody.vertices.iterator();
+			while (vectorIterator.hasNext()){
+				Vector2 v = vectorIterator.next();
+				if ( v.dst(click) < threshold){
+					nearestVertex = v;
+					threshold = v.dst(click);
+				}
+			}
+		}
+		return nearestVertex;
+	}
+	
+	public Block getBlock(Vector2 coord){
+		Iterator<Block> it = wdata.blocks.iterator();
+		while (it.hasNext()){
+			Block b = it.next();
+			if (b.blockPos.epsilonEquals(coord, 0))
+				return b;
+		}
+		return null;
+	}
+	
+	public void setNewBlock(Vector2 coord){
+		if (!exists(coord)){
+			wdata.blocks.add(new Block(coord.x,coord.y));
+		}else{System.out.println("WARNING: block already exists!");}
+	}
+	
+	public boolean exists(Vector2 coord){
+		Iterator<Block> it = wdata.blocks.iterator();
+		while (it.hasNext()){
+			if (it.next().blockPos.epsilonEquals(coord, 0))
+				return true;
+		}
+		return false;
 	}
 }
