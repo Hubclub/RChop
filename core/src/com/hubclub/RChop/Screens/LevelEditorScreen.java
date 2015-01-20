@@ -169,10 +169,10 @@ public class LevelEditorScreen implements Screen, InputProcessor {
 			pressedkey = "mwheel";
 		}else if (button == 0){
 			pressedkey = "lclick";
-		/*	selectedVertex = wbuilder.findNearestVertex(currentBlock,
-					new Vector2( screenX/getPixPerWidth(),
-								(Gdx.graphics.getHeight() - screenY)/getPixPerHeight() ),
-					pointThreshold);*/
+			selectedVertex = wbuilder.findNearestVertex(currentBlock,
+					getClickWorldPos(screenX, Gdx.graphics.getHeight() - screenY)
+					.sub(currentBlock.x*WorldBuilder.BLOCK_WIDTH, currentBlock.y*WorldBuilder.BLOCK_HEIGHT),
+					pointThreshold);
 		}
 		return true;
 	}
@@ -192,8 +192,13 @@ public class LevelEditorScreen implements Screen, InputProcessor {
 								(screenY - lastclick.y)/getPixPerHeight(),
 								0);
 			camera.update();
-			lastclick.set(screenX, screenY);
+		}else if (pressedkey == "lclick"){
+			selectedVertex.sub((lastclick.x - screenX)/getPixPerWidth(),
+							   (screenY - lastclick.y)/getPixPerHeight());
+			reload();
 		}
+		
+		lastclick.set(screenX, screenY);
 		return false;
 	}
 
@@ -207,13 +212,16 @@ public class LevelEditorScreen implements Screen, InputProcessor {
 	public boolean scrolled(int amount) {
 	/*	if (camera.zoom + amount >= 1.0f){
 			camera.zoom += amount;
-			System.out.println(camera.);
 		}
 		camera.update();*/
 		return false;
 	}
 	
 	// MISC
+	private Vector2 getClickWorldPos(int x,int y){
+		return new Vector2((x - Gdx.graphics.getWidth()/2)/getPixPerWidth(),
+						   (y - Gdx.graphics.getHeight()/2)/getPixPerHeight()).add(camera.position.x, camera.position.y);
+	}
 	private float getPixPerHeight(){
 		return (Gdx.graphics.getHeight() / VP_HEIGHT);
 	}

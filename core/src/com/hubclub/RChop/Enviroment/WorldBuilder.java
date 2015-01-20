@@ -101,8 +101,10 @@ public class WorldBuilder {
 	}
 	
 	public Vector2 findNearestVertex(Vector2 coord, Vector2 click, float threshold){
-		Iterator<LandBody> landbodyIterator = getBlock(coord).landbodies.iterator();
 		Vector2 nearestVertex = new Vector2();
+		if (!exists(coord)) return nearestVertex;
+		// ^ if the block does not exist, there is no point to search, plus you get nullpointerexeption if you do
+		Iterator<LandBody> landbodyIterator = getBlock(coord).landbodies.iterator();
 		
 		while (landbodyIterator.hasNext()){
 			LandBody landbody = landbodyIterator.next();
