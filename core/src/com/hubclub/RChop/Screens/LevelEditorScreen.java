@@ -13,6 +13,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
+import com.badlogic.gdx.physics.box2d.Shape.Type;
 import com.badlogic.gdx.physics.box2d.World;
 import com.hubclub.RChop.Enviroment.WorldBuilder;
 import com.sun.corba.se.impl.oa.poa.ActiveObjectMap.Key;
@@ -27,7 +28,7 @@ public class LevelEditorScreen implements Screen, InputProcessor {
 	ShapeRenderer grid;
 	private float VP_WIDTH=20,VP_HEIGHT=12;
 	private Vector2 currentBlock;
-	private float vLineX,oLineY;
+	private float vLineX,oLineY;   
 	
 	public LevelEditorScreen (){
 		wbuilder = new WorldBuilder();
@@ -63,6 +64,7 @@ public class LevelEditorScreen implements Screen, InputProcessor {
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT); //clear the screen
 		
 		drawGrid();
+		drawPoints();
 		batch.begin();
 			drawCoord();
 		batch.end();
@@ -102,6 +104,15 @@ public class LevelEditorScreen implements Screen, InputProcessor {
 					  Gdx.graphics.getWidth()/2, Gdx.graphics.getHeight()/2 + 10, Color.YELLOW, Color.YELLOW);
 		grid.end();
 	}
+	public void drawPoints(){
+		grid.begin(ShapeType.Line);
+		for (Vector2 i : wbuilder.getVertices(currentBlock)){
+			grid.circle((-camera.position.x + currentBlock.x*WorldBuilder.BLOCK_WIDTH + i.x)*getPixPerWidth() + Gdx.graphics.getWidth()/2,
+						(-camera.position.y + currentBlock.y*WorldBuilder.BLOCK_HEIGHT + i.y)*getPixPerHeight() + Gdx.graphics.getHeight()/2, 
+						pointThreshold*getPixPerHeight());
+		}
+		grid.end();
+	}
 
 	@Override
 	public void resize(int width, int height) {
@@ -134,12 +145,15 @@ public class LevelEditorScreen implements Screen, InputProcessor {
 	}
 	
 	// Input processing thing
-	private float pointThreshold = 0.5f;
+	private float pointThreshold = 0.2f;
 	
 	@Override
 	public boolean keyDown(int keycode) {
 		if (keycode == Keys.N){
 			wbuilder.setNewBlock(currentBlock);
+			reload();
+		}else if (keycode == Keys.P){
+			wbuilder.addPolygon(currentBlock);
 			reload();
 		}
 		return false;

@@ -130,10 +130,25 @@ public class WorldBuilder {
 		return null;
 	}
 	
+	public ArrayList<Vector2> getVertices(Vector2 coord){
+		ArrayList<Vector2> vrt = new ArrayList<Vector2>();
+		if (!exists(coord)) return vrt; // if it doesn't exist, no point to draw anything
+		Iterator<LandBody> it = getBlock(coord).landbodies.iterator();
+		while (it.hasNext()){
+			vrt.addAll(0, it.next().vertices);
+		}
+		return vrt;
+	}
+	
 	public void setNewBlock(Vector2 coord){
 		if (!exists(coord)){
 			wdata.blocks.add(new Block(coord.x,coord.y));
 		}else{System.out.println("WARNING: block already exists!");}
+	}
+	
+	public void addPolygon(Vector2 coord){
+		if (!exists(coord)) return;
+		getBlock(coord).landbodies.add(new LandBody());
 	}
 	
 	public boolean exists(Vector2 coord){
